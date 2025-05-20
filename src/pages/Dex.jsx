@@ -1,28 +1,101 @@
 import styled from "styled-components";
 import pocketBall from "../assets/pocketBall.png";
 import Card from "./Card";
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { myListKey, myListMaxKey } from "../shared/storageManager";
 
 function Dex() {
-  const displayCount = 10;
-  const idList = Array.from({ length: displayCount }, (_, i) => i + 1);
+  const myListMax = 6;
+  const displayCount = 50;
+  const [idList, setIdList] = useState(
+    Array.from({ length: displayCount }, (_, i) => i + 1)
+  );
+  const [myList, setMyList] = useState([]);
+
+  const addButtonHandler = (id) => {
+    if (myList.length >= myListMax) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `You can add up to ${myListMax} pokemons`,
+      });
+      return;
+    }
+
+    const newList = [...myList, id];
+    localStorage.setItem(myListKey, JSON.stringify(newList));
+    setMyList(newList);
+    setIdList((list) =>
+      list.filter((v) => {
+        return v !== id;
+      })
+    );
+  };
+
+  const removeButtonHandler = (id) => {
+    const newList = myList.filter((v) => {
+      return v !== id;
+    });
+    localStorage.setItem(myListKey, JSON.stringify(newList));
+    setMyList(newList);
+    setIdList((list) => [...list, id].sort((a, b) => a - b));
+  };
+
+  useEffect(() => {
+    localStorage.setItem(myListMaxKey, JSON.stringify(myListMax));
+    const importedList = JSON.parse(localStorage.getItem(myListKey));
+    if (importedList) {
+      setMyList(importedList);
+      setIdList((list) =>
+        list.filter((v) => {
+          let has = false;
+          for (let i = 0; i < importedList.length; i++) {
+            if (v === importedList[i]) {
+              has = true;
+              break;
+            }
+          }
+          return !has;
+        })
+      );
+    }
+  }, []);
 
   return (
     <>
       <TopBoxWrapper>
-        <h2>나만의 포켓몬</h2>
+        <h2>My Pokemons</h2>
         <PocketBallPlaceHolder>
-          <PocketBall />
-          <PocketBall />
-          <PocketBall />
-          <PocketBall />
-          <PocketBall />
-          <PocketBall />
+          {myList.map((i) => {
+            return (
+              <Card
+                key={i}
+                id={i}
+                buttonHandler={removeButtonHandler}
+                type={"Remove"}
+              />
+            );
+          })}
+          {Array.from(
+            { length: myListMax - myList.length },
+            (_, i) => i + 1
+          ).map((i) => {
+            return <PocketBall key={i} />;
+          })}
         </PocketBallPlaceHolder>
       </TopBoxWrapper>
       <BottomBoxWrapper>
         <CardPlaceHolder>
           {idList.map((i) => {
-            return <Card key={i} id={i} />;
+            return (
+              <Card
+                key={i}
+                id={i}
+                buttonHandler={addButtonHandler}
+                type={"Add"}
+              />
+            );
           })}
         </CardPlaceHolder>
       </BottomBoxWrapper>
@@ -42,8 +115,10 @@ const CardPlaceHolder = styled.div`
 const PocketBallPlaceHolder = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
+  padding: 15px;
 `;
 
 const PocketBall = styled.div`

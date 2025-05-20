@@ -10,8 +10,8 @@ function App() {
 }
 
 const BackgroundWrapper = styled.div`
-  min-height: 100vh;
-  min-width: 100vw;
+  min-height: 100%;
+  min-width: 100%;
   background-color: #ffdfad;
   display: inline-block;
 `;

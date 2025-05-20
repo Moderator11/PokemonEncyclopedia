@@ -3,18 +3,23 @@ import styled, { keyframes } from "styled-components";
 import { fetchPokemon } from "../apis/pokemon";
 import { useNavigate } from "react-router-dom";
 
-function Card({ id }) {
+function Card({ id, buttonHandler, type }) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [number, setNumber] = useState(0);
   const [sprite, setSprite] = useState("");
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const loadPokemonInfo = async () => {
       const pokemon = await fetchPokemon(id);
-      setName(pokemon.name);
-      setNumber(pokemon.id);
-      setSprite(pokemon.sprite);
+      if (pokemon) {
+        setName(pokemon.name);
+        setNumber(pokemon.id);
+        setSprite(pokemon.sprite);
+      } else {
+        setIsError(true);
+      }
     };
     loadPokemonInfo();
   }, []);
@@ -26,7 +31,9 @@ function Card({ id }) {
         navigate(`/detail/${number}`);
       }}
     >
-      {!number ? (
+      {isError ? (
+        <p>Cannot Load Card</p>
+      ) : !number ? (
         <Loader />
       ) : (
         <>
@@ -36,9 +43,10 @@ function Card({ id }) {
           <Button
             onClick={(e) => {
               e.stopPropagation();
+              buttonHandler(number);
             }}
           >
-            Add
+            {type}
           </Button>
         </>
       )}

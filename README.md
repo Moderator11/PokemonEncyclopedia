@@ -8,17 +8,17 @@
   - [ ] prop-drilling
   - [ ] context
 - [x] Implement page routing
-- [ ] Implement dex page
+- [x] Implement dex page
 - [x] Implement detail page
-- [ ] Implement notification
+- [x] Implement notification
 - [x] Use stlyed-components
 
 ### 도전 기능 TODO
 
 - [ ] Refactor with redux toolkit
-- [ ] Add add button in detail page
-- [ ] Preserve page data with localStorage
-- [ ] Use UI Library for modal
+- [x] Add add button in detail page
+- [x] Preserve page data with localStorage
+- [x] Use UI Library for modal
 
 ### Used API
 
