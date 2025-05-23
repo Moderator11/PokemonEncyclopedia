@@ -4,14 +4,17 @@ import Card from "./Card";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { myListKey, myListMaxKey } from "../shared/storageManager";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addToMyList,
+  removeFromMyList,
+  setMyList,
+  setMyListMax,
+} from "../store/configs";
 
 function Dex() {
-  const myListMax = 6;
-  const displayCount = 50;
-  const [idList, setIdList] = useState(
-    Array.from({ length: displayCount }, (_, i) => i + 1)
-  );
-  const [myList, setMyList] = useState([]);
+  const dispatch = useDispatch();
+  const { myList, idList, myListMax } = useSelector((state) => state.idList);
 
   const addButtonHandler = (id) => {
     if (myList.length >= myListMax) {
@@ -23,80 +26,55 @@ function Dex() {
       return;
     }
 
-    const newList = [...myList, id];
-    localStorage.setItem(myListKey, JSON.stringify(newList));
-    setMyList(newList);
-    setIdList((list) =>
-      list.filter((v) => {
-        return v !== id;
-      })
-    );
+    dispatch(addToMyList(id));
+    localStorage.setItem(myListKey, JSON.stringify([...myList, id]));
   };
 
   const removeButtonHandler = (id) => {
-    const newList = myList.filter((v) => {
-      return v !== id;
-    });
+    dispatch(removeFromMyList(id));
+    const newList = myList.filter((v) => v !== id);
     localStorage.setItem(myListKey, JSON.stringify(newList));
-    setMyList(newList);
-    setIdList((list) => [...list, id].sort((a, b) => a - b));
   };
 
   useEffect(() => {
+    localStorage.setItem(myListKey, JSON.stringify(myList));
+  }, [myList]);
+
+  useEffect(() => {
     localStorage.setItem(myListMaxKey, JSON.stringify(myListMax));
-    const importedList = JSON.parse(localStorage.getItem(myListKey));
-    if (importedList) {
-      setMyList(importedList);
-      setIdList((list) =>
-        list.filter((v) => {
-          let has = false;
-          for (let i = 0; i < importedList.length; i++) {
-            if (v === importedList[i]) {
-              has = true;
-              break;
-            }
-          }
-          return !has;
-        })
-      );
-    }
-  }, []);
+  }, [myListMax]);
 
   return (
     <>
       <TopBoxWrapper>
         <h2>My Pokemons</h2>
         <PocketBallPlaceHolder>
-          {myList.map((i) => {
-            return (
-              <Card
-                key={i}
-                id={i}
-                buttonHandler={removeButtonHandler}
-                type={"Remove"}
-              />
-            );
-          })}
+          {myList.map((i) => (
+            <Card
+              key={i}
+              id={i}
+              buttonHandler={removeButtonHandler}
+              type={"Remove"}
+            />
+          ))}
           {Array.from(
             { length: myListMax - myList.length },
             (_, i) => i + 1
-          ).map((i) => {
-            return <PocketBall key={i} />;
-          })}
+          ).map((i) => (
+            <PocketBall key={i} />
+          ))}
         </PocketBallPlaceHolder>
       </TopBoxWrapper>
       <BottomBoxWrapper>
         <CardPlaceHolder>
-          {idList.map((i) => {
-            return (
-              <Card
-                key={i}
-                id={i}
-                buttonHandler={addButtonHandler}
-                type={"Add"}
-              />
-            );
-          })}
+          {idList.map((i) => (
+            <Card
+              key={i}
+              id={i}
+              buttonHandler={addButtonHandler}
+              type={"Add"}
+            />
+          ))}
         </CardPlaceHolder>
       </BottomBoxWrapper>
     </>

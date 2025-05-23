@@ -4,9 +4,9 @@
 
 ### 필수 기능 TODO
 
-- [ ] Git branch
-  - [ ] prop-drilling
-  - [ ] context
+- [x] Git branch
+  - [x] prop-drilling
+  - [x] context
 - [x] Implement page routing
 - [x] Implement dex page
 - [x] Implement detail page
@@ -15,7 +15,7 @@
 
 ### 도전 기능 TODO
 
-- [ ] Refactor with redux toolkit
+- [x] Refactor with redux toolkit
 - [x] Add add button in detail page
 - [x] Preserve page data with localStorage
 - [x] Use UI Library for modal

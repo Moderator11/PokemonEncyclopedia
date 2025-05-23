@@ -2,29 +2,53 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { fetchPokemon, fetchPokemonSpecies } from "../apis/pokemon";
-import { myListKey, myListMaxKey } from "../shared/storageManager";
 import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { addToMyList, removeFromMyList } from "../store/configs"; // adjust path if needed
 
 function Detail() {
   const navigate = useNavigate();
   const params = useParams();
+  const dispatch = useDispatch();
+  const { myList, myListMax } = useSelector((state) => state.idList);
+
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
   const [isError, setIsError] = useState(false);
 
+  const id = parseInt(params.id);
+
   useEffect(() => {
     const loadPokemonInfo = async () => {
-      let pokemon = await fetchPokemon(params.id, true);
-      let species = await fetchPokemonSpecies(params.id);
-      if (pokemon && species) {
-        setPokemon(pokemon);
-        setSpecies(species);
+      const p = await fetchPokemon(params.id, true);
+      const s = await fetchPokemonSpecies(params.id);
+      if (p && s) {
+        setPokemon(p);
+        setSpecies(s);
       } else {
         setIsError(true);
       }
     };
     loadPokemonInfo();
-  }, []);
+  }, [params.id]);
+
+  const isInMyList = myList.includes(id);
+
+  const toggleAdd = () => {
+    if (isInMyList) {
+      dispatch(removeFromMyList(id));
+    } else {
+      if (myList.length >= myListMax) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `You can add up to ${myListMax} pokemons`,
+        });
+        return;
+      }
+      dispatch(addToMyList(id));
+    }
+  };
 
   const playCry = () => {
     if (pokemon?.cries?.latest) {
@@ -37,59 +61,6 @@ function Detail() {
     (entry) => entry.language.name === "en"
   );
 
-  const [isAdd, setIsAdd] = useState(true);
-
-  const toggleAdd = () => {
-    const importedList = localStorage.getItem(myListKey);
-    const importedMax = localStorage.getItem(myListMaxKey);
-    const list = JSON.parse(importedList);
-    const max = parseInt(JSON.parse(importedMax) ?? "6");
-    if (importedList) {
-      if (list.includes(parseInt(params.id))) {
-        localStorage.setItem(
-          myListKey,
-          JSON.stringify(
-            list.filter((v) => {
-              return v !== parseInt(params.id);
-            })
-          )
-        );
-        setIsAdd((v) => !v);
-      } else {
-        if (list.length >= max) {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: `You can add up to ${max} pokemons`,
-          });
-          return;
-        }
-        localStorage.setItem(
-          myListKey,
-          JSON.stringify([...list, parseInt(params.id)])
-        );
-        setIsAdd((v) => !v);
-      }
-    } else {
-      localStorage.setItem(myListKey, JSON.stringify([parseInt(params.id)]));
-      setIsAdd((v) => !v);
-    }
-  };
-
-  useEffect(() => {
-    const importedList = localStorage.getItem(myListKey);
-    if (importedList) {
-      let list = JSON.parse(importedList);
-      if (list.includes(parseInt(params.id))) {
-        setIsAdd(false);
-      } else {
-        setIsAdd(true);
-      }
-    } else {
-      setIsAdd(true);
-    }
-  }, []);
-
   return (
     <ContentWrapper>
       <DetailWrapper>
@@ -99,7 +70,7 @@ function Detail() {
           <>
             <DetailImage
               src={pokemon?.sprites.front_default}
-              alt={`${name} sprite`}
+              alt={`${pokemon?.name} sprite`}
             />
             <PokemonName>{pokemon?.name}</PokemonName>
             <p>Height: {pokemon?.height}</p>
@@ -107,7 +78,7 @@ function Detail() {
             <p>Type: {pokemon?.types[0].type.name}</p>
             <h3>{englishEntry?.flavor_text}</h3>
             <Button onClick={playCry}>Play Cry 🔊</Button>
-            <Button onClick={toggleAdd}>{isAdd ? "Add" : "Remove"}</Button>
+            <Button onClick={toggleAdd}>{isInMyList ? "Remove" : "Add"}</Button>
           </>
         )}
         <Button onClick={() => navigate("/dex")}>
