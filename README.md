@@ -4,9 +4,9 @@
 
 ### 필수 기능 TODO
 
-- [ ] Git branch
-  - [ ] prop-drilling
-  - [ ] context
+- [x] Git branch
+  - [x] prop-drilling
+  - [x] context
 - [x] Implement page routing
 - [x] Implement dex page
 - [x] Implement detail page

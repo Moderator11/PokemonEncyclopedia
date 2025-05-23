@@ -1,17 +1,14 @@
 import styled from "styled-components";
 import pocketBall from "../assets/pocketBall.png";
 import Card from "./Card";
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import Swal from "sweetalert2";
 import { myListKey, myListMaxKey } from "../shared/storageManager";
+import { CardContext, IdListContext } from "../context/globalContexts";
 
 function Dex() {
-  const myListMax = 6;
-  const displayCount = 50;
-  const [idList, setIdList] = useState(
-    Array.from({ length: displayCount }, (_, i) => i + 1)
-  );
-  const [myList, setMyList] = useState([]);
+  const { myListMax, idList, setIdList, myList, setMyList } =
+    useContext(IdListContext);
 
   const addButtonHandler = (id) => {
     if (myList.length >= myListMax) {
@@ -67,16 +64,13 @@ function Dex() {
       <TopBoxWrapper>
         <h2>My Pokemons</h2>
         <PocketBallPlaceHolder>
-          {myList.map((i) => {
-            return (
-              <Card
-                key={i}
-                id={i}
-                buttonHandler={removeButtonHandler}
-                type={"Remove"}
-              />
-            );
-          })}
+          <CardContext.Provider
+            value={{ buttonHandler: removeButtonHandler, type: "Remove" }}
+          >
+            {myList.map((i) => {
+              return <Card key={i} id={i} />;
+            })}
+          </CardContext.Provider>
           {Array.from(
             { length: myListMax - myList.length },
             (_, i) => i + 1
@@ -87,16 +81,13 @@ function Dex() {
       </TopBoxWrapper>
       <BottomBoxWrapper>
         <CardPlaceHolder>
-          {idList.map((i) => {
-            return (
-              <Card
-                key={i}
-                id={i}
-                buttonHandler={addButtonHandler}
-                type={"Add"}
-              />
-            );
-          })}
+          <CardContext.Provider
+            value={{ buttonHandler: addButtonHandler, type: "Add" }}
+          >
+            {idList.map((i) => {
+              return <Card key={i} id={i} />;
+            })}
+          </CardContext.Provider>
         </CardPlaceHolder>
       </BottomBoxWrapper>
     </>

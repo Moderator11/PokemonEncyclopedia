@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { fetchPokemon } from "../apis/pokemon";
 import { useNavigate } from "react-router-dom";
+import { CardContext } from "../context/globalContexts";
 
-function Card({ id, buttonHandler, type }) {
+function Card({ id }) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [number, setNumber] = useState(0);
   const [sprite, setSprite] = useState("");
   const [isError, setIsError] = useState(false);
+
+  const { buttonHandler, type } = useContext(CardContext);
 
   useEffect(() => {
     const loadPokemonInfo = async () => {
