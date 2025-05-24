@@ -1,4 +1,4 @@
-# Kakao Tech Campus FE 1st Assignment
+# Kakao Tech Campus FE 2nd Assignment
 
 ## TODO
 
